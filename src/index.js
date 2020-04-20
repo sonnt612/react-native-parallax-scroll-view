@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { Animated, Dimensions, View, ViewPropTypes } from 'react-native'
+import { Animated, Dimensions, View, ViewPropTypes, SafeAreaView } from 'react-native'
+import LinearGradient from 'react-native-linear-gradient';
 
 const styles = require('./styles')
 
@@ -371,38 +372,60 @@ class ParallaxScrollView extends Component {
 	}) {
 		const { viewWidth } = this.state
 		const { scrollY } = this
+		const translateY = interpolate(scrollY, {
+			inputRange: [0, stickyHeaderHeight],
+			outputRange: [-stickyHeaderHeight, 0],
+			extrapolate: 'clamp'
+		})
 		if (renderStickyHeader || renderFixedHeader) {
+			const p = pivotPoint(parallaxHeaderHeight, stickyHeaderHeight)
 			return (
 				<Animated.View
 					style={[
 						styles.stickyHeader,
 						{
 							width: viewWidth,
-							transform: [
-								{
-									translateY: interpolate(scrollY, {
-										inputRange: [0, parallaxHeaderHeight],
-										outputRange: [parallaxHeaderHeight, 0],
-										extrapolate: 'clamp'
-									})
-								}
-							]
+							transform: [{ translateY }]
 						}
 					]}
 				>
+					{this.props.linearConfig ?
+						<LinearGradient
+							{...this.props.linearConfig}
+							style={{flex: 0}}
+						>
+							<SafeAreaView style={{backgroundColor: 'transparent'}} />
+						</LinearGradient> :
+						<SafeAreaView style={{backgroundColor: this.props.backgroundSafeArea || '#fff'}} />
+					}
 					{renderStickyHeader
 						? <Animated.View
 							style={{
 								backgroundColor: backgroundColor,
 								height: stickyHeaderHeight,
+								transform: [{ translateY }],
 								opacity: interpolate(scrollY, {
-									inputRange: [0, parallaxHeaderHeight],
+									inputRange: [stickyHeaderHeight, p],
 									outputRange: [0, 1],
 									extrapolate: 'clamp'
 								})
 							}}
 						>
-							{renderStickyHeader()}
+							{/* <Animated.View
+								style={{
+									transform: [
+										{
+											translateY: interpolate(scrollY, {
+												inputRange: [0, p],
+												outputRange: [stickyHeaderHeight, 0],
+												extrapolate: 'clamp'
+											})
+										}
+									]
+								}}
+							> */}
+								{renderStickyHeader()}
+							{/* </Animated.View> */}
 						</Animated.View>
 						: null}
 					{renderFixedHeader && renderFixedHeader()}
