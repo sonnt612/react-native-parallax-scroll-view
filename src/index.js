@@ -385,7 +385,12 @@ class ParallaxScrollView extends Component {
 						styles.stickyHeader,
 						{
 							width: viewWidth,
-							transform: [{ translateY }]
+							transform: [{ translateY }],
+							opacity: interpolate(scrollY, {
+								inputRange: [stickyHeaderHeight, p],
+								outputRange: [0, 1],
+								extrapolate: 'clamp'
+							})
 						}
 					]}
 				>
@@ -398,36 +403,7 @@ class ParallaxScrollView extends Component {
 						</LinearGradient> :
 						<SafeAreaView style={{backgroundColor: this.props.backgroundSafeArea || '#fff'}} />
 					}
-					{renderStickyHeader
-						? <Animated.View
-							style={{
-								backgroundColor: backgroundColor,
-								height: stickyHeaderHeight,
-								transform: [{ translateY }],
-								opacity: interpolate(scrollY, {
-									inputRange: [stickyHeaderHeight, p],
-									outputRange: [0, 1],
-									extrapolate: 'clamp'
-								})
-							}}
-						>
-							{/* <Animated.View
-								style={{
-									transform: [
-										{
-											translateY: interpolate(scrollY, {
-												inputRange: [0, p],
-												outputRange: [stickyHeaderHeight, 0],
-												extrapolate: 'clamp'
-											})
-										}
-									]
-								}}
-							> */}
-								{renderStickyHeader()}
-							{/* </Animated.View> */}
-						</Animated.View>
-						: null}
+					{renderStickyHeader ? renderStickyHeader() : null}
 					{renderFixedHeader && renderFixedHeader()}
 				</Animated.View>
 			)
